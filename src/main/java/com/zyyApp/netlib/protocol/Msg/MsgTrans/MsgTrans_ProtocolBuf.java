@@ -1,6 +1,7 @@
 package com.zyyApp.netlib.protocol.Msg.MsgTrans;
 
 import com.google.protobuf.MessageLite;
+import com.zyyApp.LogMgr;
 import com.zyyApp.netlib.protocol.Msg.Body.BufferBean;
 
 /**
@@ -13,7 +14,9 @@ public class MsgTrans_ProtocolBuf<Msg extends MessageLite> extends MsgTrans_Base
     @SuppressWarnings("unchecked")
     public MsgTrans_ProtocolBuf(Msg prototype) {
         if(prototype == null) {
-            throw new NullPointerException("prototype");
+            String errInfo = "prototype == null";
+            LogMgr.log.error(errInfo);
+            throw new NullPointerException(errInfo);
         } else {
             this.prototype = (Msg)prototype.getDefaultInstanceForType();
         }
@@ -30,7 +33,9 @@ public class MsgTrans_ProtocolBuf<Msg extends MessageLite> extends MsgTrans_Base
                 buf.writeBytes(((Msg)msg).toByteArray());
             } else {
                 // err;
-                throw new IllegalArgumentException("msg Type Err");
+                String errInfo = String.format("Encode -- msg Type Err; className:%s", msg.getClass().getName());
+                LogMgr.log.error(errInfo);
+                throw new IllegalArgumentException(errInfo);
             }
         }
     }

@@ -34,7 +34,9 @@ public class MsgDecoder extends ByteToMessageDecoder {
                 headProc = new HeadProc_Netty_ICarry();
                 break;
             default:
-                throw new RuntimeException(String.format("MsgDecoder; err headProc type {type:%s}", headType.toString()));
+                String errInfo = String.format("MsgDecoder; err headProc type {type:%s}", headType.toString());
+                LogMgr.log.error(errInfo);
+                throw new RuntimeException(errInfo);
         }
     }
 
@@ -84,9 +86,10 @@ public class MsgDecoder extends ByteToMessageDecoder {
                     return;
                 }
             } else {
+                String errInfo = String.format("MsgDecoder; trans == null; {msgId:%d}", msg.getMsgId());
+                LogMgr.log.error(errInfo);
                 // 不抛出异常, 有可能是对端恶意发送的错误消息; 进行打印并断开连接即可;
-                //throw new RuntimeException(String.format("MsgDecoder; trans == null; {msgId:%d}", msg.getMsgId()));
-                LogMgr.log.error("MsgDecoder; trans == null; {msgId:{}}", msgId);
+                //throw new RuntimeException(errInfo);
                 ctx.close();
                 return;
             }

@@ -1,5 +1,6 @@
 package com.zyyApp.netlib.protocol.Netty;
 
+import com.zyyApp.LogMgr;
 import com.zyyApp.netlib.protocol.Msg.Body.Buffer_ByteBuf;
 import com.zyyApp.netlib.protocol.Msg.Head.HeadType;
 import com.zyyApp.netlib.protocol.Msg.Message;
@@ -31,7 +32,9 @@ public class MsgEncoder extends MessageToByteEncoder<Message> {
                 headProc = new HeadProc_Netty_ICarry();
                 break;
             default:
-                throw new RuntimeException(String.format("MsgEncoder; err headProc type {type:%s}", headType.toString()));
+                String errInfo = String.format("MsgEncoder; err headProc type {type:%s}", headType.toString());
+                LogMgr.log.error(errInfo);
+                throw new RuntimeException(errInfo);
         }
     }
 
@@ -44,26 +47,30 @@ public class MsgEncoder extends MessageToByteEncoder<Message> {
 
         // 消息体;
         MsgTrans_Base trans = MsgTransPool.getInstance().getMessageTrans(msg.getMsgId());
-        if (msg.getMsgObj() != null) {
-            if (trans != null) {
-                // 转换写入消息信息;
-                Buffer_ByteBuf buf = Buffer_ByteBuf.poolPop();
-                buf.init(out);
-                trans.Encode(buf, msg.getMsgObj());
-                Buffer_ByteBuf.poolPush(buf);
-            } else {
-                throw new RuntimeException(String.format("MsgEncoder; trans != null; {msgId:%d}", msg.getMsgId()));
+        try {
+            if (msg.getMsgObj() != null) {
+                if (trans != null) {
+                    // 转换写入消息信息;
+                    Buffer_ByteBuf buf = Buffer_ByteBuf.poolPop();
+                    buf.init(out);
+                    trans.Encode(buf, msg.getMsgObj());
+                    Buffer_ByteBuf.poolPush(buf);
+                } else {
+                    String errInfo = String.format("MsgEncoder; trans == null; {msgId:%d}", msg.getMsgId());
+                    LogMgr.log.error(errInfo);
+                    throw new RuntimeException(errInfo);
+                }
             }
+
+            // 计算数据长度;
+            int msgLength = out.readableBytes() - Define.INT_BYTE_NUM;       // 总长度 减去 msgLength 本身的长度, 等于剩余消息数据的长度;
+            out.setInt(0, msgLength);
+
+            // 写入消息头; 从消息长度后面开始写;
+            headProc.WriteHead(msg, out, Define.INT_BYTE_NUM);
+        } finally {
+            // 不再使用, 将消息对象还会重用池中;
+            Message.poolPush(msg);
         }
-
-        // 计算数据长度;
-        int msgLength = out.readableBytes() - Define.INT_BYTE_NUM;       // 总长度 减去 msgLength 本身的长度, 等于剩余消息数据的长度;
-        out.setInt(0, msgLength);
-
-        // 写入消息头; 从消息长度后面开始写;
-        headProc.WriteHead(msg, out, Define.INT_BYTE_NUM);
-
-        // 不再使用, 将消息对象还会重用池中;
-        Message.poolPush(msg);
     }
 }
