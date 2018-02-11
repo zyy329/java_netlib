@@ -29,18 +29,23 @@ public class Message {
     public int getMsgId() {
         return msgId;
     }
-
-    public void setMsgId(int msgId) {
-        this.msgId = msgId;
-    }
-
     public Object getMsgObj() {
         return msgObj;
     }
 
-    public void setMsgObj(Object msgObj) {
+    public boolean init(Object msgObj) {
+        this.msgId = MessagePool.getInstance().getMessageID(msgObj.getClass());
         this.msgObj = msgObj;
+        return this.msgId == -1 ? false : true;
     }
+
+//    public void setMsgId(int msgId) {
+//        this.msgId = msgId;
+//    }
+//
+//    public void setMsgObj(Object msgObj) {
+//        this.msgObj = msgObj;
+//    }
 
 
 
@@ -74,8 +79,8 @@ public class Message {
         }
 
         // 数据清理;
-        msg.setMsgId(0);
-        msg.setMsgObj(null);
+        msg.msgId = 0;
+        msg.msgObj = null;
 
         // 放入池中;
         pool.offer(msg);

@@ -69,7 +69,6 @@ public class MsgDecoder extends ByteToMessageDecoder {
 
         // 消息体处理, 生成 Message 对象;
         Message msg = Message.poolPop();
-        msg.setMsgId(msgId);
         if (bodyBuf != null) {
             MsgTrans_Base trans = MsgTransPool.getInstance().getMessageTrans(msgId);
             if (trans != null) {
@@ -77,7 +76,7 @@ public class MsgDecoder extends ByteToMessageDecoder {
                 try {
                     Buffer_ByteBuf buf = Buffer_ByteBuf.poolPop();
                     buf.init(bodyBuf);
-                    msg.setMsgObj(trans.Decode(buf, msgBodyLength));
+                    msg.init(trans.Decode(buf, msgBodyLength));
                     Buffer_ByteBuf.poolPush(buf);
                 } catch (Exception e) {
                     // 不抛出异常, 有可能是对端恶意发送的错误消息; 进行打印并断开连接即可;
