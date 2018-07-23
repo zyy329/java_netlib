@@ -1,6 +1,6 @@
 package com.zyyApp.netlib.protocol.Msg;
 
-import com.zyyApp.util.UniqueId;
+import com.zyyApp.util.simple.UniqueId;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -39,13 +39,13 @@ public class Message {
         return this.msgId == -1 ? false : true;
     }
 
-//    public void setMsgId(int msgId) {
-//        this.msgId = msgId;
-//    }
-//
-//    public void setMsgObj(Object msgObj) {
-//        this.msgObj = msgObj;
-//    }
+    public void setMsgId(int msgId) {
+        this.msgId = msgId;
+    }
+
+    public void setMsgObj(Object msgObj) {
+        this.msgObj = msgObj;
+    }
 
 
 

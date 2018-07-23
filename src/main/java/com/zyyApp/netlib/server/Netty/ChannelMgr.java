@@ -1,6 +1,6 @@
 package com.zyyApp.netlib.server.Netty;
 
-import com.zyyApp.util.UniqueId;
+import com.zyyApp.util.simple.UniqueId;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
 import io.netty.util.internal.PlatformDependent;

@@ -1,7 +1,7 @@
 package com.zyyApp.netlib.protocol.Netty.Head;
 
 import com.zyyApp.netlib.protocol.Msg.Message;
-import com.zyyApp.util.Define;
+import com.zyyApp.util.simple.Define;
 import io.netty.buffer.ByteBuf;
 
 import java.util.concurrent.atomic.AtomicInteger;

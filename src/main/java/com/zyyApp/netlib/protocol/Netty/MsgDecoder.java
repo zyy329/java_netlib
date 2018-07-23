@@ -9,7 +9,7 @@ import com.zyyApp.netlib.protocol.Msg.MsgTrans.MsgTrans_Base;
 import com.zyyApp.netlib.protocol.Netty.Head.HeadProc_NettyBase;
 import com.zyyApp.netlib.protocol.Netty.Head.HeadProc_Netty_ICarry;
 import com.zyyApp.netlib.protocol.Netty.Head.HeadProc_Netty_IdOnly;
-import com.zyyApp.util.Define;
+import com.zyyApp.util.simple.Define;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
