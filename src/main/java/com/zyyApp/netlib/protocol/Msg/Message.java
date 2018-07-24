@@ -39,13 +39,13 @@ public class Message {
         return this.msgId == -1 ? false : true;
     }
 
-    public void setMsgId(int msgId) {
-        this.msgId = msgId;
-    }
-
-    public void setMsgObj(Object msgObj) {
-        this.msgObj = msgObj;
-    }
+//    public void setMsgId(int msgId) {
+//        this.msgId = msgId;
+//    }
+//
+//    public void setMsgObj(Object msgObj) {
+//        this.msgObj = msgObj;
+//    }
 
 
 
