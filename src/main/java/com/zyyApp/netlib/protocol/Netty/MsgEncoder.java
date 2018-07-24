@@ -51,10 +51,14 @@ public class MsgEncoder extends MessageToByteEncoder<Message> {
             if (msg.getMsgObj() != null) {
                 if (trans != null) {
                     // 转换写入消息信息;
-                    Buffer_ByteBuf buf = Buffer_ByteBuf.poolPop();
-                    buf.init(out);
-                    trans.Encode(buf, msg.getMsgObj());
-                    Buffer_ByteBuf.poolPush(buf);
+                    Buffer_ByteBuf buf = null;
+                    try {
+                        buf = Buffer_ByteBuf.poolPop();
+                        buf.init(out);
+                        trans.Encode(buf, msg.getMsgObj());
+                    } finally {
+                        Buffer_ByteBuf.poolPush(buf);
+                    }
                 } else {
                     String errInfo = String.format("MsgEncoder; trans == null; {msgId:%d}", msg.getMsgId());
                     LogMgr.log.error(errInfo);

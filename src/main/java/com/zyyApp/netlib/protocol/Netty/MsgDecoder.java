@@ -73,16 +73,18 @@ public class MsgDecoder extends ByteToMessageDecoder {
             MsgTrans_Base trans = MsgTransPool.getInstance().getMessageTrans(msgId);
             if (trans != null) {
                 // 转换;
+                Buffer_ByteBuf buf = null;
                 try {
-                    Buffer_ByteBuf buf = Buffer_ByteBuf.poolPop();
+                    buf = Buffer_ByteBuf.poolPop();
                     buf.init(bodyBuf);
                     msg.init(trans.Decode(buf, msgBodyLength));
-                    Buffer_ByteBuf.poolPush(buf);
                 } catch (Exception e) {
                     // 不抛出异常, 有可能是对端恶意发送的错误消息; 进行打印并断开连接即可;
                     LogMgr.log.error("MsgDecoder; trans.Decode err; {msgId:{}}:", msgId, e);
                     ctx.close();
                     return;
+                } finally {
+                    Buffer_ByteBuf.poolPush(buf);
                 }
             } else {
                 String errInfo = String.format("MsgDecoder; trans == null; {msgId:%d}", msg.getMsgId());

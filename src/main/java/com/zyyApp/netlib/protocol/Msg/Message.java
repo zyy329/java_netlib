@@ -2,8 +2,8 @@ package com.zyyApp.netlib.protocol.Msg;
 
 import com.zyyApp.util.simple.UniqueId;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 中转 消息类;
@@ -12,8 +12,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Created by zyy on 2017/4/14.
  */
 public class Message {
-    /** 唯一ID 生成器; */
-    private static final UniqueId idCreater = new UniqueId();
     /** 唯一ID; 用于保证不会被重复加入重用池中, 避免被交叉使用, 产生数据错误; */
     private long uniqueId;
 
@@ -53,14 +51,16 @@ public class Message {
     /* *************************************************************** */
     // 重用池;
     private static ConcurrentLinkedQueue<Message> pool = new ConcurrentLinkedQueue<>();
-    private static ConcurrentHashMap<Long, Integer> mapUniqueId = new ConcurrentHashMap<>();    // 在重用池中对象的 UniqueId 集合;
+    /** 唯一ID 生成器; */
+    private static final UniqueId idCreater = new UniqueId();
+    private static ConcurrentSkipListSet<Long> UniqueIds = new ConcurrentSkipListSet<>();    // 在重用池中对象的 UniqueId 集合;
     public static Message poolPop() {
         Message msg = pool.poll();
         if (msg == null) {
             msg = new Message();
             msg.uniqueId = idCreater.getUniqueId(0);
         } else {
-            mapUniqueId.remove(msg.uniqueId);
+            UniqueIds.remove(msg.uniqueId);
         }
         return msg;
     }
@@ -73,7 +73,7 @@ public class Message {
             // 元素已经过多, 不用再往池里面放了, 交给gc进行回收;
             return;
         }
-        if (mapUniqueId.containsKey(msg.uniqueId)) {
+        if (UniqueIds.contains(msg.uniqueId)) {
             // 已经在池中了, 不重复放入;
             return;
         }
@@ -84,6 +84,6 @@ public class Message {
 
         // 放入池中;
         pool.offer(msg);
-        mapUniqueId.put(msg.uniqueId, 0);
+        UniqueIds.add(msg.uniqueId);
     }
 }

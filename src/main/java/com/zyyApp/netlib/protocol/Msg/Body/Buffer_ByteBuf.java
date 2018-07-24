@@ -1,16 +1,20 @@
 package com.zyyApp.netlib.protocol.Msg.Body;
 
 import com.zyyApp.LogMgr;
+import com.zyyApp.util.simple.UniqueId;
 import io.netty.buffer.ByteBuf;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 基于 ByteBuf 包装的 bufferBean
  * Created by zyy on 2017/5/15.
  */
 public class Buffer_ByteBuf extends BufferBean{
+    /** 唯一ID; 用于保证不会被重复加入重用池中, 避免被交叉使用, 产生数据错误; */
+    private long uniqueId;
     private ByteBuf buf;
 
     public void init(ByteBuf buf) { this.buf = buf; }
@@ -111,10 +115,16 @@ public class Buffer_ByteBuf extends BufferBean{
     /* *************************************************************** */
     // 重用池;
     private static ConcurrentLinkedQueue<Buffer_ByteBuf> pool = new ConcurrentLinkedQueue<>();
+    // 唯一ID 生成器;
+    private static final UniqueId idCreater = new UniqueId();
+    private static ConcurrentSkipListSet<Long> UniqueIds = new ConcurrentSkipListSet<>();    // 在重用池中对象的 UniqueId 集合;
     public static Buffer_ByteBuf poolPop() {
         Buffer_ByteBuf buf = pool.poll();
         if (buf == null) {
             buf = new Buffer_ByteBuf();
+            buf.uniqueId = idCreater.getUniqueId(0);
+        } else {
+            UniqueIds.remove(buf.uniqueId);
         }
         return buf;
     }
@@ -127,10 +137,15 @@ public class Buffer_ByteBuf extends BufferBean{
             // 元素已经过多, 不用再往池里面放了, 交给gc进行回收;
             return;
         }
+        if (UniqueIds.contains(buf.uniqueId)) {
+            // 已经在池中了, 不重复放入;
+            return;
+        }
         // 数据清理;
         buf.clear();
 
         // 放入池中;
         pool.offer(buf);
+        UniqueIds.add(buf.uniqueId);
     }
 }
