@@ -43,8 +43,8 @@ public class ServerJobHandler extends ChannelInboundHandlerAdapter {
         Long connectId = channelMgr.getUID(ctx.channel().id());
         serverBase.onReceive(connectId, (Message) msg);
 
-        // 不再使用, 将消息对象还会重用池中;
-        Message.poolPush((Message) msg);
+//        // 不再使用, 将消息对象还会重用池中;  由于应用层可能会将消息投递到其他线程进行处理, 这里就不在负责还回重用池, 有应用层负责归还;
+//        Message.poolPush((Message) msg);
     }
 
     @Override
